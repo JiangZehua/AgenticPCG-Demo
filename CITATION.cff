@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "If you use this application extension, acknowledge this software and cite the two related Agentic PCG papers."
+title: "AgenticPCG Demo"
+type: software
+version: 0.1.0
+repository-code: "https://github.com/JiangZehua/AgenticPCG-Demo"
+license: MIT
+authors:
+  - family-names: Jiang
+    given-names: Zehua
+references:
+  - type: article
+    title: "Enabling Agentic PCG with Harness-Controlled Local Models"
+    authors:
+      - family-names: Jiang
+        given-names: Zehua
+      - family-names: Earle
+        given-names: Sam
+      - family-names: Khalifa
+        given-names: Ahmed
+      - family-names: Togelius
+        given-names: Julian
+    year: 2026
+    doi: "10.2139/ssrn.7502203"
+    url: "https://ssrn.com/abstract=7502203"
+  - type: article
+    title: "Agentic PCG: Procedural Content Generation via Tool-using LLMs"
+    authors:
+      - family-names: Jiang
+        given-names: Zehua
+      - family-names: Earle
+        given-names: Sam
+      - family-names: Khalifa
+        given-names: Ahmed
+      - family-names: Togelius
+        given-names: Julian
+    year: 2026
+    doi: "10.2139/ssrn.6499021"
+    url: "https://ssrn.com/abstract=6499021"

@@ -1,0 +1,12 @@
+include .env.example .gitignore CITATION.cff LICENSE CONTRIBUTING.md CHANGELOG.md
+recursive-include docs *.md *.svg
+recursive-include tests *.py
+recursive-include unity *.cs *.meta *.json *.txt *.unity *.asset *.png
+recursive-include .github *.yml
+prune unity/Library
+prune unity/Temp
+prune unity/Logs
+prune unity/UserSettings
+prune unity/Assets/Generated
+prune unity/Assets/_Recovery
+global-exclude __pycache__ *.py[cod]

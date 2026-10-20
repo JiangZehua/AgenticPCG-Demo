@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "unity-agentic-pcg"
+version = "0.1.0"
+description = "Generate, verify, and play Unity levels with tool-using agents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "Zehua Jiang"}]
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/JiangZehua/AgenticPCG-Demo"
+Issues = "https://github.com/JiangZehua/AgenticPCG-Demo/issues"
+
+[project.scripts]
+unity-pcg = "unity_pcg.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["unity_pcg*"]
+
+[tool.setuptools.package-data]
+unity_pcg = ["examples/*.json"]

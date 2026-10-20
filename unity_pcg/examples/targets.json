@@ -1,0 +1,6 @@
+{
+  "min_path_length": 24,
+  "max_path_length": 36,
+  "hazard_count": 3,
+  "zone_hazards": [0, 1, 2]
+}
