@@ -9,7 +9,7 @@ import sys
 from .bridge import UnityBridge, atomic_json
 from .harness import Harness
 from .level import Level, contract, evaluate
-from .provider import Portkey, load_env
+from .provider import ModelClient, load_env
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -93,7 +93,6 @@ def main(argv=None):
             request_group = sub.add_mutually_exclusive_group(required=True)
             request_group.add_argument("--request")
             request_group.add_argument("--request-file", type=Path)
-            sub.add_argument("--model")
             sub.add_argument("--max-steps", type=int, default=8)
             sub.add_argument("--max-tokens", type=int, default=2048)
             sub.add_argument("--revise", action="store_true", help="Ask for at least one proposal even if the starting map meets targets")
@@ -101,6 +100,11 @@ def main(argv=None):
     prepare.add_argument("--request-file", type=Path, required=True)
     prepare.add_argument("--output", type=Path, required=True)
     prepare.add_argument("--interpret", action="store_true")
+    for sub in (commands.choices["generate"], prepare):
+        sub.add_argument("--provider", choices=("ollama", "lmstudio", "portkey"), help="Override PCG_PROVIDER (default: ollama)")
+        sub.add_argument("--model", help="Override the selected provider's model ID")
+        sub.add_argument("--base-url", help="Override the selected provider's API base URL, including /v1")
+        sub.add_argument("--model-timeout", type=float, help="Per-call timeout in seconds; overrides PCG_MODEL_TIMEOUT (default: 120)")
     export = commands.add_parser("export-grid", help="Convert an existing Zelda character grid to the Unity IR")
     export.add_argument("input", type=Path)
     export.add_argument("--output", type=Path, required=True)
@@ -111,7 +115,7 @@ def main(argv=None):
         load_env(args.env_file)
         if args.command == "prepare-request":
             request = read_request(args.request_file)
-            result = interpret_request(request, Portkey()) if args.interpret else {"request": request}
+            result = interpret_request(request, ModelClient(args.model, args.provider, args.base_url, args.model_timeout)) if args.interpret else {"request": request}
             result["controls"] = {"hazards": "hazard_count" in result["request"]["targets"],
                                   "zones": "zone_hazards" in result["request"]["targets"]}
             atomic_json(args.output, result)
@@ -147,10 +151,10 @@ def main(argv=None):
             request = read_request(args.request_file) if args.request_file else {
                 "schema_version": 1, "domain": "keydoor", "instruction": args.request,
                 "targets": contract(json.loads(args.targets.read_text()))}
-            provider = Portkey(args.model)
+            provider = ModelClient(args.model, args.provider, args.base_url, args.model_timeout)
             level = read_level(args.level)
             targets = request["targets"]
-            atomic_json(output / "request.json", {"request": request["instruction"], "domain": request["domain"], "targets": targets, "model": provider.model,
+            atomic_json(output / "request.json", {"request": request["instruction"], "domain": request["domain"], "targets": targets, "provider": provider.name, "model": provider.model,
                         "max_steps": args.max_steps, "max_tokens": args.max_tokens, "backend": args.backend})
             harness = Harness(level, targets, output, bridge)
             summary = harness.run(provider, request["instruction"], args.max_steps, args.max_tokens, revise=args.revise)

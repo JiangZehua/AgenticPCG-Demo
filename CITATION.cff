@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this application extension, acknowledge this software and cite the two related Agentic PCG papers."
 title: "AgenticPCG Demo"
 type: software
-version: 0.1.0
+version: 0.1.1
 repository-code: "https://github.com/JiangZehua/AgenticPCG-Demo"
 license: MIT
 authors:

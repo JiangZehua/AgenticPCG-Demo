@@ -1,5 +1,10 @@
 # AgenticPCG Demo
 
+[![Agentic PCG Project Page](https://img.shields.io/badge/Agentic_PCG-Project_Page-2563eb?style=for-the-badge)](https://zehua-jiang.github.io/AgenticPCG/)
+[![Agentic PCG GitHub](https://img.shields.io/badge/Agentic_PCG-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/JiangZehua/AgenticPCG)
+[![Local Deployable Agentic PCG Project Page](https://img.shields.io/badge/Local_Deployable_Agentic_PCG-Project_Page-0f766e?style=for-the-badge)](https://zehua-jiang.github.io/Local-Deployable-AgenticPCG/)
+[![Local Deployable Agentic PCG GitHub](https://img.shields.io/badge/Local_Deployable_Agentic_PCG-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/JiangZehua/Local-Deployable-AgenticPCG)
+
 [![Offline checks](https://github.com/JiangZehua/AgenticPCG-Demo/actions/workflows/checks.yml/badge.svg)](https://github.com/JiangZehua/AgenticPCG-Demo/actions/workflows/checks.yml)
 
 **Generate, verify, and play Unity levels with a tool-using agent.**
@@ -14,12 +19,12 @@ Blue is the player, yellow the key, green the exit, and red a lethal hazard. The
 
 - A playable Unity scene with keyboard movement, walls, key pickup, a locked exit, and lethal hazards.
 - An in-game prompt and JSON panel with explicit route-length and hazard controls.
-- Bounded Portkey tool calling with candidate validation, rollback, and evaluator-controlled stopping.
+- Ollama and LM Studio local models, optional Portkey, and bounded tool calling with candidate validation, rollback, and evaluator-controlled stopping.
 - Offline BFS evaluation and an optional isolated Unity Physics2D replay.
 - Inspectable JSON maps, candidate traces, evaluation summaries, and SVG previews.
 - A deterministic offline demo and automated Python checks with no runtime dependencies.
 
-This is a source demo at version `0.1.0`. Offline behavior is reproducible without credentials. Editor physics and model-backed workflows have prior local validation; a standalone application has not been validated for distribution. See [validation](docs/validation.md) and the [release checklist](docs/release.md).
+This is a source demo at version `0.1.1`. Offline behavior is reproducible without credentials. Editor physics and model-backed workflows have prior local validation; a standalone application has not been validated for distribution. See [validation](docs/validation.md) and the [release checklist](docs/release.md).
 
 ## Quick start
 
@@ -64,24 +69,40 @@ Use **Agentic PCG → Import Level JSON for Play** to load `runs/unity-demo/fina
 
 ## Configure model generation
 
+Choose **Ollama**, **LM Studio**, or optional **Portkey**. The Python runtime still needs no third-party dependencies. All providers use the same edit tools, validation, rollback, and Unity physics integration.
+
 ```bash
 cp .env.example .env
 ```
 
-Set `PORTKEY_API_KEY`, `PORTKEY_BASE_URL`, and `PORTKEY_MODEL` for your own tool-calling model route. The base URL must include its API version path, for example `https://your-gateway.example/v1`. Optional virtual-key and config routing fields are documented in `.env.example`. There is no organization-specific default route.
+| Provider | `.env` selection | Model field | Default API base URL |
+| --- | --- | --- | --- |
+| Ollama (default) | `PCG_PROVIDER=ollama` | `OLLAMA_MODEL` | `http://localhost:11434/v1` |
+| LM Studio | `PCG_PROVIDER=lmstudio` | `LMSTUDIO_MODEL` | `http://localhost:1234/v1` |
+| Portkey | `PCG_PROVIDER=portkey` | `PORTKEY_MODEL` | Set `PORTKEY_BASE_URL` explicitly |
+
+For Ollama, start the local server and install a tool-calling model. For LM Studio, start its Developer server and load a tool-calling model. Copy the exact installed/loaded model ID into the matching field. Local servers need no Portkey credentials. LM Studio's optional server authentication uses `LMSTUDIO_API_KEY`.
 
 ```bash
-python3 -m unity_pcg generate \
+# Example: use a model already present in `ollama list`.
+python3 -m unity_pcg generate --provider ollama --model llama3.1:latest \
   --request "Connect the player to the key and exit; keep three hazard zones." \
-  --targets unity_pcg/examples/targets.json \
-  --max-steps 4 --max-tokens 2048 --output runs/generated
+  --max-steps 4 --max-tokens 2048 --output runs/ollama-generated
+
+# LM Studio: replace the placeholder with the ID returned by /v1/models.
+python3 -m unity_pcg generate --provider lmstudio --model YOUR_LOADED_MODEL_ID \
+  --request "Repair this maze." --output runs/lmstudio-generated
 ```
 
-Add `--backend unity` to require physics verification. Calls and output tokens are bounded; HTTP failures do not trigger automatic retries. Cost remains `null` unless per-million token prices are configured.
+Omit `--provider` and `--model` to use `.env`. Add `--backend unity` to require physics verification. Calls and output tokens remain bounded; failures do not retry automatically or fall back to a cloud provider. Cost is `null` unless per-million token prices are configured.
+
+**Existing Portkey users:** add `PCG_PROVIDER=portkey` to your `.env` (or pass `--provider portkey`), keeping `PORTKEY_API_KEY`, `PORTKEY_BASE_URL`, and `PORTKEY_MODEL`. Unset provider selection now defaults to Ollama.
+
+See [provider setup and troubleshooting](docs/providers.md) for server commands, model discovery, authentication, timeout overrides, and official API references.
 
 ### Generate from the game
 
-In Play mode, set an instruction and numeric controls, then choose **Generate + verify + load**. Unity starts a local Python worker and processes its physics jobs. Only a successful verified result replaces the displayed map. Failed requests, unmet targets, and cancellation retain it.
+In Play mode, set an instruction and numeric controls, then choose **Generate + verify + load**. Unity starts a local Python worker using the repository `.env` provider/model settings and processes its physics jobs. Only a successful verified result replaces the displayed map. Failed requests, unmet targets, and cancellation retain it.
 
 **Interpret targets** makes one separate model call to extract explicit numeric goals. Review the resulting controls before generation. Alternatively, set the controls directly or paste a request into the JSON tab and choose **Load JSON targets** without a model call. Shortcuts: **Ctrl/Cmd+Enter** prepares targets; **Ctrl/Cmd+Shift+Enter** generates.
 
@@ -126,7 +147,7 @@ Return codes: `0` targets verified, `2` completed with unmet targets, `1` config
 | `unity_pcg/level.py` | Versioned map format, validation, targets, BFS metrics |
 | `unity_pcg/tools.py` | Allowlisted edit tools and atomic transactions |
 | `unity_pcg/harness.py` | Candidate acceptance, feedback, stopping, artifacts |
-| `unity_pcg/provider.py` | Portkey REST client and local environment loading |
+| `unity_pcg/provider.py` | Shared Ollama / LM Studio / Portkey client and local environment loading |
 | `unity_pcg/bridge.py` | Atomic file jobs, matching reports, timeouts, batch launcher |
 | `unity/Assets/AgenticPCG/Runtime/` | Playable map, generation panel, physics replay |
 | `unity/Assets/AgenticPCG/Editor/` | Editor bridge and import/build menus |

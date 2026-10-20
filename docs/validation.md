@@ -2,6 +2,16 @@
 
 This document separates reproducible source checks from prior local evidence and unverified release gates. No standalone desktop application is certified by the current source baseline.
 
+## Local provider update: 0.1.1 (2026-10-20)
+
+- The Python suite passed **20 checks**, including actual loopback HTTP requests for both local provider configurations, generation and target interpretation, CLI overrides, credential isolation, and sanitized errors. The HTTP responder is synthetic; those checks do not run a model.
+- Ollama `0.40.4` with the installed `llama3.1:latest` model completed one real offline-backend generation sample: one accepted `set_tile(7,5,".")`, a 28-step route, 803 prompt tokens, and 28 completion tokens. This sample did not run Unity physics.
+- LM Studio's local server started and its installed tool-calling model loaded, but live generation was stopped before a result was recorded. End-to-end LM Studio generation remains an intern validation task; no success is claimed.
+- The 0.1.1 wheel installed and ran the offline demo outside the checkout. Provider flags were present in the installed CLI.
+- Portkey retains mocked payload/configuration coverage. No new live Portkey call, Unity replay, game-panel session, or standalone test was run for this update.
+
+Local integration work was handed off without further live testing at the repository owner's request. Follow [provider setup](providers.md) and the [delivery backlog](roadmap.md) to complete model/engine validation. Set `PCG_PROVIDER=portkey` to retain an existing Portkey configuration; Ollama is now the default.
+
 ## Source baseline: 2026-10-20
 
 Checks below were run on macOS arm64 with Python 3.13 and Unity 6000.6.5f1 during repository preparation. CI runs the Python suite and an installed offline demo on Python 3.10 and 3.12. CI does not run a live model or Unity.

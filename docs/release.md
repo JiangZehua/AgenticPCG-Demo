@@ -1,6 +1,6 @@
 # Release checklist
 
-Repository: [JiangZehua/AgenticPCG-Demo](https://github.com/JiangZehua/AgenticPCG-Demo). Version `0.1.0` identifies the source baseline; a version field alone does not imply a published or validated binary.
+Repository: [JiangZehua/AgenticPCG-Demo](https://github.com/JiangZehua/AgenticPCG-Demo). Version `0.1.1` identifies the source baseline; a version field alone does not imply a published or validated binary.
 
 ## Source and Python package
 
@@ -23,7 +23,7 @@ For a repository archive, use `git archive` on the reviewed commit rather than z
 
 - Compile with the recorded Unity patch; run the scripted demo through actual Unity physics.
 - Check movement, walls, locked door before pickup, key pickup, hazard death, winning, restart, and panel focus in Play mode.
-- Exercise a live model run with Unity verification. Keep sanitized request, trace, candidate maps, summary, model route, token counts, and exact Unity backend/version.
+- Exercise a live run for each advertised provider with Unity verification. Keep sanitized request, trace, candidate maps, summary, model route, token counts, and exact Unity backend/version.
 - Exercise invalid input, unmet targets, Cancel, timeout, and stopping Play during a worker. The displayed map must remain unchanged when generation fails.
 - Confirm distribution permission for each reused sprite or replace it with a documented alternative. See [sprite provenance](architecture.md#sprite-provenance).
 

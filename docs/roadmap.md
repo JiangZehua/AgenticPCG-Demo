@@ -8,9 +8,9 @@ The baseline is a working source demo: offline repair, a playable embedded map, 
 | P0 | Unity gameplay regression | Verify movement, wall blocking, door blocking before key pickup, pickup, winning, hazard death, and restart. Attach an actual physics replay report and a short capture of manual play. |
 | P0 | Desktop application | Build one declared desktop target, launch it outside the Editor, and repeat gameplay checks. Document OS, Unity version, launch steps, and the build artifact. |
 | P0 | Sprite licensing | Establish per-file distribution permission for all six reused sprites or replace them with assets having confirmed licensing; update attribution. |
-| P1 | Generation handoff | Configure a gateway from the template, run model-backed generation with Unity verification, and retain sanitized request, trace, summary, candidates, token usage, and backend/version. |
+| P1 | Generation handoff | Configure each advertised provider from the template, run model-backed generation with Unity verification, and retain sanitized request, trace, summary, candidates, token usage, and backend/version. |
 | P1 | UI lifecycle regression | Exercise prompt/JSON modes, target preparation, pointer sliders, keyboard focus, Cancel, timeout, invalid requests, and exiting Play during a worker. Failed/cancelled runs must preserve the displayed map. |
-| P1 | Standalone generation setup | Decide whether the desktop release includes generation. If included, document and verify Python/repository discovery, gateway configuration, cancellation, and physics replay outside the Editor. Otherwise clearly scope the binary to embedded-map play. |
+| P1 | Standalone generation setup | Decide whether the desktop release includes generation. If included, document and verify Python/repository discovery, provider configuration, cancellation, and physics replay outside the Editor. Otherwise clearly scope the binary to embedded-map play. |
 | P1 | Release bundle | Produce source archive, Python wheel, sanitized offline example, desktop artifact, and release notes. Verify each from its documented entry point. |
 
 ## Definition of done

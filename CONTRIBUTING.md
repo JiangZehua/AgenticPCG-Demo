@@ -14,7 +14,7 @@ python -m unittest discover -s tests -v
 python -m unity_pcg demo --output runs/development-check
 ```
 
-Use a fresh output directory for each run. Model-backed work needs your own `.env`; use `.env.example` as its template. Never commit credentials, `.bridge`, local run logs, Unity caches, or recovery scenes. Commit Unity `.meta` files with their assets.
+Use a fresh output directory for each run. Model-backed work needs a configured Ollama, LM Studio, or Portkey endpoint; use `.env.example` and [provider setup](docs/providers.md). Local inference needs an installed tool-calling model, not a cloud key. Never commit credentials, `.bridge`, local run logs, Unity caches, or recovery scenes. Commit Unity `.meta` files with their assets.
 
 ## Change expectations
 

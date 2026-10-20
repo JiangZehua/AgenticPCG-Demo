@@ -15,7 +15,7 @@ from unity_pcg.bridge import UnityBridge, atomic_json
 from unity_pcg.cli import EXAMPLES, demo, interpret_request, main, read_level, read_request
 from unity_pcg.harness import Harness
 from unity_pcg.level import Level, contract, evaluate
-from unity_pcg.provider import Portkey, load_env
+from unity_pcg.provider import ModelClient, load_env
 from unity_pcg.tools import apply
 
 
@@ -174,7 +174,7 @@ class PipelineTests(unittest.TestCase):
         class Response(io.BytesIO):
             pass
         with patch.dict(os.environ, {"PORTKEY_API_KEY": "test-secret", "PORTKEY_MODEL": "@test/model", "PORTKEY_BASE_URL": "https://gateway.example/v1"}, clear=True):
-            provider = Portkey()
+            provider = ModelClient(provider="portkey")
             data = {"choices": [{"message": {"tool_calls": [{"function": {"name": "carve_corridor", "arguments": json.dumps(REPAIR[0]["arguments"])}}]},
                                  "finish_reason": "tool_calls"}], "usage": {"prompt_tokens": 10, "completion_tokens": 5}}
             with patch("unity_pcg.provider.urlopen", return_value=Response(json.dumps(data).encode())) as request:
@@ -196,13 +196,13 @@ class PipelineTests(unittest.TestCase):
         for missing in config:
             with self.subTest(missing=missing), patch.dict(os.environ, {k: v for k, v in config.items() if k != missing}, clear=True):
                 with self.assertRaisesRegex(ValueError, "Fill PORTKEY"):
-                    Portkey()
+                    ModelClient(provider="portkey")
         for url in ("http://gateway.example/v1", "https://user:secret@gateway.example/v1", "https://gateway.example/v1?key=secret"):
             with self.subTest(url=url), patch.dict(os.environ, {**config, "PORTKEY_BASE_URL": url}, clear=True):
                 with self.assertRaises(ValueError):
-                    Portkey()
+                    ModelClient(provider="portkey")
         with patch.dict(os.environ, {**config, "PORTKEY_BASE_URL": "http://localhost:8080/v1"}, clear=True):
-            self.assertEqual(Portkey().base_url, "http://localhost:8080/v1")
+            self.assertEqual(ModelClient(provider="portkey").base_url, "http://localhost:8080/v1")
 
     def test_env_does_not_override_shell_or_expand_variables(self):
         with tempfile.TemporaryDirectory() as temp, patch.dict(os.environ, {"PORTKEY_API_KEY": "from-shell"}, clear=True):
@@ -233,8 +233,9 @@ class PipelineTests(unittest.TestCase):
             atomic_json(path, request)
             provider = unittest.mock.Mock()
             provider.model = "test-model"
+            provider.name = "ollama"
             provider.propose.return_value = (REPAIR, {})
-            with patch("unity_pcg.cli.Portkey", return_value=provider):
+            with patch("unity_pcg.cli.ModelClient", return_value=provider):
                 self.assertEqual(main(["generate", "--request-file", str(path), "--output", str(output)]), 0)
             recorded = json.loads((output / "request.json").read_text())
             self.assertEqual(recorded["request"], instruction)

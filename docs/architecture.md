@@ -3,7 +3,7 @@
 ```mermaid
 flowchart LR
     UI[Unity game UI: prompt, JSON, sliders] --> Request[Validated request + typed targets]
-    Request --> Model[Portkey tool-calling model]
+    Request --> Model[Ollama / LM Studio / Portkey model]
     Saved[Saved level + measured feedback] --> Model
     Model --> Tools[Allowlisted edit transaction]
     Tools --> Candidate[Candidate Level IR]
@@ -36,6 +36,12 @@ Override `--targets` when an imported level needs different numerical goals.
 - Actions: 1–8 calls per transaction; allowlisted names, exact argument keys, bounded integer coordinates, and known tile strings. A failed action invalidates the entire transaction. `fill_rect` and `carve_corridor` preserve entities. `set_tile` moves an entity by clearing its old position, then whole-level validation runs.
 - Acceptance: lexicographic `[unreachable route legs, target error]`, lower is better; nonworsening changed maps can be saved. Invalid/no-op/worse candidates are rejected. In Unity mode, geometrically feasible candidates also need an engine win before commitment. This greedy rule can trap on plateaus; a future search experiment should change and version the policy explicitly.
 - Stopping: only when the saved map satisfies the contract and, if enabled, has a successful corresponding physics report. Model `finish` calls cannot override this.
+
+## Model boundary
+
+`ModelClient` selects an explicit provider/model through CLI options or repository configuration. Ollama and LM Studio use their local OpenAI-compatible Chat Completions endpoints; Portkey remains an optional gateway. One parser normalizes structured tool calls and usage metadata for the existing harness. Each request records provider/model provenance. Local responses lacking valid calls consume a bounded failed step; plain text is never executed.
+
+Provider-specific authentication stays in Python. Local calls never receive Portkey headers; optional local tokens use Bearer authentication. There is no automatic cloud fallback or retry. Both target interpretation and map generation use this client, including workers launched by Unity. See [provider configuration](providers.md).
 
 ## Engine boundary
 
